@@ -56,11 +56,15 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
     }
     int totalStretch = 0;
     for (int i = 0; i < columnStretch.count(); i++) {
-        if(columnStretch[i] <= 0) {
+        if(columnStretch[i] < 0) {
             error = QString("wrong column stretch, columnt: %1 stretch: %2").arg(i).arg(columnStretch[i]);
             return false;
         }
         totalStretch += columnStretch[i];
+    }
+    if(totalStretch <= 0) {
+        error = QString("wrong stretch");
+        return false;
     }
     QVector<double> columnWidth;
     for (int i = 0; i < columnStretch.count(); i++) {

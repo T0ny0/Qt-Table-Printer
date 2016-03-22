@@ -43,7 +43,7 @@ Widget::~Widget() {
 
 void Widget::print(QPrinter *printer) {
 
-    // ------------------ simplest example -------------------------
+    // ------------------ simplest example --------------------------
 
     QPainter painter;
     if(!painter.begin(printer)) {
@@ -69,7 +69,7 @@ void Widget::uglyPrint(QPrinter *printer) {
         return;
     }
     TablePrinter uglyTablePrinter(&uglyPainter, printer);
-    QVector<int> colStretch = QVector<int>() << 5 << 5 << 8 << 10;
+    QVector<int> colStretch = QVector<int>() << 5 << 5 << 0 << 10;
     uglyTablePrinter.setPen(QPen(QColor(0, 100, 255), 3, Qt::DotLine)); // pen for borders
     uglyTablePrinter.setHeaderColor(Qt::red);
     uglyTablePrinter.setContentColor(Qt::green);
@@ -94,7 +94,7 @@ void Widget::uglyPrint(QPrinter *printer) {
     delete printB;
 }
 
-// ------------------------------- create and populate the table -----------------------------
+// ----------------------- create and populate the table ------------
 void Widget::initDb() {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("exampleDb");
