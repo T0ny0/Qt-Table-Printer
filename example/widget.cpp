@@ -14,13 +14,20 @@
 // ----------------- example of inharitance from PagePrepare ---------------------
 
 class PrintBorder : public PagePrepare {
+public:
     virtual void preparePage(QPainter *painter);
+    static int pageNumber;
 };
+
+int PrintBorder::pageNumber = 0;
 
 void PrintBorder::preparePage(QPainter *painter) { // print a border on each page
     QRect rec = painter->viewport();
     painter->setPen(QPen(QColor(0, 0, 0), 1));
     painter->drawRect(rec);
+    painter->translate(10, painter->viewport().height() - 10);
+    painter->drawText(0, 0, QString("Page %1").arg(pageNumber));
+    pageNumber += 1;
 }
 
 // --------------------------------------------------------------------------------
@@ -80,6 +87,7 @@ void Widget::uglyPrint(QPrinter *printer) {
     uglyTablePrinter.setHeadersFont(font1);
     uglyTablePrinter.setContentFont(font2);
     PrintBorder *printB = new PrintBorder;
+    printB->pageNumber = 1;
     uglyTablePrinter.setPagePrepare(printB);
     QVector<QString> headers = QVector<QString>() << "Header 1" << "Header 2" << "Header 3" << "Header 4";
     uglyPainter.setPen(QPen(Qt::yellow));
