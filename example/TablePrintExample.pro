@@ -14,9 +14,9 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         widget.cpp \
-    tableprinter.cpp
+    ../tableprinter.cpp
 
 HEADERS  += widget.h \
-    tableprinter.h
+    ../tableprinter.h
 
 FORMS    += widget.ui

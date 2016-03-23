@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QPrinter>
 
+#include <QDebug>
+
 TablePrinter::TablePrinter(QPainter* painter, QPrinter* printer) :
     painter(painter),
     printer(printer) {
@@ -15,7 +17,7 @@ TablePrinter::TablePrinter(QPainter* painter, QPrinter* printer) :
     bottomHeight = 0;
     leftBlank = 0;
     rightBlank = 0;
-    MaxRowHeight = 800;
+    maxRowHeight = 1000;
     pen = painter->pen();
     headersFont = painter->font();
     contentFont = painter->font();
@@ -56,11 +58,15 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
     }
     int totalStretch = 0;
     for (int i = 0; i < columnStretch.count(); i++) {
-        if(columnStretch[i] <= 0) {
+        if(columnStretch[i] < 0) {
             error = QString("wrong column stretch, columnt: %1 stretch: %2").arg(i).arg(columnStretch[i]);
             return false;
         }
         totalStretch += columnStretch[i];
+    }
+    if(totalStretch <= 0) {
+        error = QString("wrong stretch");
+        return false;
     }
     QVector<double> columnWidth;
     for (int i = 0; i < columnStretch.count(); i++) {
@@ -73,6 +79,18 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
 
     painter->save(); // before table print
 
+    // to know row height before printing
+    // at first print to test image
+    QPainter testSize;
+    QImage* image = new QImage(10, 10, QImage::Format_RGB32);
+    image->setDotsPerMeterX(printer->logicalDpiX() * 100 / 2.54); // 2.54 cm = 1 inch
+    image->setDotsPerMeterY(printer->logicalDpiY() * 100 / 2.54);
+    qDebug() << image->logicalDpiX();
+    qDebug() << image->logicalDpiY();
+    qDebug() << printer->logicalDpiX();
+    qDebug() << printer->logicalDpiX();
+    testSize.begin(image);
+
     if(prepare) {
         painter->save();
         painter->translate(-painter->transform().dx(), -painter->transform().dy());
@@ -82,24 +100,21 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
 
     painter->setPen(pen);
     painter->setFont(contentFont);
+    testSize.setFont(contentFont);
     painter->translate(-painter->transform().dx() + leftBlank, 0);
     painter->save();
     painter->setFont(headersFont);
+    testSize.setFont(headersFont);
     painter->drawLine(0, 0, tableWidth, 0); // first horizontal line
     for(int j = initValue; j < model->rowCount(); j++) { // for each row
         if(j == 0) {
             painter->setFont(contentFont);
+            testSize.setFont(contentFont);
         }
 
         // --------------------------- row height counting ----------------------------
 
-        // to know row height before printing
-        // at first print to test image
-        QPainter testSize;
-        QImage* image = new QImage(100, 100, QImage::Format_RGB32);
-        testSize.begin(image);
-
-        int maxHeigh = 0; // max row Height
+        int maxHeight = 0; // max row Height
         for(int i = 0; i < columnCount; i++) { // for each column
             QString str;
             if(j >= 0) {
@@ -107,17 +122,15 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
             } else {
                 str = headers.at(i);
             }
-            QRect rect(0, 0, columnWidth[i], MaxRowHeight);
+            QRect rect(0, 0, columnWidth[i] - rightMargin - leftMargin, maxRowHeight);
             QRect realRect;
             testSize.drawText(rect, Qt::AlignLeft | Qt::TextWordWrap, str, &realRect);
-            if (realRect.height() > maxHeigh) {
-                maxHeigh = realRect.height();
+            if (realRect.height() > maxHeight && columnStretch[i] != 0) {
+                 realRect.height() > maxRowHeight ? maxHeight = maxRowHeight : maxHeight = realRect.height();
             }
         }
-        testSize.end();
-        delete image;
 
-        if(painter->transform().dy() + maxHeigh + topMargin + bottomMargin > painter->viewport().height() -
+        if(painter->transform().dy() + maxHeight + topMargin + bottomMargin > painter->viewport().height() -
                 bottomHeight) { // begin from new page
             int y = painter->transform().dy();
             painter->restore();
@@ -153,19 +166,15 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
             } else {
                 str = headers.at(i);
             }
-            QRect rec(leftMargin, topMargin, columnWidth[i] - rightMargin - leftMargin, MaxRowHeight);
-            QRect realRect;
-            painter->drawText(rec, Qt::AlignLeft | Qt::TextWordWrap, str, &realRect);
+            QRect rec(leftMargin, topMargin, columnWidth[i] - rightMargin - leftMargin, maxHeight);
+            painter->drawText(rec, Qt::AlignLeft | Qt::TextWordWrap, str);
             painter->translate(columnWidth[i], 0);
-            if (realRect.height() > maxHeigh) {
-                maxHeigh = realRect.height();
-            }
         }
         painter->restore();
 
-        painter->drawLine(0, maxHeigh + topMargin + bottomMargin, tableWidth,
-                          maxHeigh + topMargin + bottomMargin); // last horizontal line
-        painter->translate(0, maxHeigh + topMargin + bottomMargin);
+        painter->drawLine(0, maxHeight + topMargin + bottomMargin, tableWidth,
+                          maxHeight + topMargin + bottomMargin); // last horizontal line
+        painter->translate(0, maxHeight + topMargin + bottomMargin);
     }
     int y = painter->transform().dy();
     painter->restore();
@@ -177,6 +186,9 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
     }
     painter->drawLine(0, 0, 0, - painter->transform().dy() + y); // last vertical line
     painter->restore();
+
+    testSize.end();
+    delete image;
 
     painter->restore(); // before table print
 
@@ -223,4 +235,8 @@ void TablePrinter::setHeaderColor(QColor color) {
 
 void TablePrinter::setContentColor(QColor color) {
     contentColor = color;
+}
+
+void TablePrinter::setMaxRowHeight(int height) {
+    maxRowHeight = height;
 }
