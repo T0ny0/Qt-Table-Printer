@@ -36,8 +36,6 @@
 #include <QPainter>
 #include <QPrinter>
 
-#include <QDebug>
-
 TablePrinter::TablePrinter(QPainter* painter, QPrinter* printer) :
     painter(painter),
     printer(printer) {
@@ -117,10 +115,6 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
     QImage* image = new QImage(10, 10, QImage::Format_RGB32);
     image->setDotsPerMeterX(printer->logicalDpiX() * 100 / 2.54); // 2.54 cm = 1 inch
     image->setDotsPerMeterY(printer->logicalDpiY() * 100 / 2.54);
-    qDebug() << image->logicalDpiX();
-    qDebug() << image->logicalDpiY();
-    qDebug() << printer->logicalDpiX();
-    qDebug() << printer->logicalDpiX();
     testSize.begin(image);
 
     if(prepare) {
