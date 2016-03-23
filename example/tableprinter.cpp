@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QPrinter>
 
+#include <QDebug>
+
 TablePrinter::TablePrinter(QPainter* painter, QPrinter* printer) :
     painter(painter),
     printer(printer) {
@@ -15,7 +17,7 @@ TablePrinter::TablePrinter(QPainter* painter, QPrinter* printer) :
     bottomHeight = 0;
     leftBlank = 0;
     rightBlank = 0;
-    maxRowHeight = 800;
+    maxRowHeight = 1000;
     pen = painter->pen();
     headersFont = painter->font();
     contentFont = painter->font();
@@ -83,6 +85,10 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
     QImage* image = new QImage(10, 10, QImage::Format_RGB32);
     image->setDotsPerMeterX(printer->logicalDpiX() * 100 / 2.54); // 2.54 cm = 1 inch
     image->setDotsPerMeterY(printer->logicalDpiY() * 100 / 2.54);
+    qDebug() << image->logicalDpiX();
+    qDebug() << image->logicalDpiY();
+    qDebug() << printer->logicalDpiX();
+    qDebug() << printer->logicalDpiX();
     testSize.begin(image);
 
     if(prepare) {
@@ -116,7 +122,7 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
             } else {
                 str = headers.at(i);
             }
-            QRect rect(0, 0, columnWidth[i], maxRowHeight);
+            QRect rect(0, 0, columnWidth[i] - rightMargin - leftMargin, maxRowHeight);
             QRect realRect;
             testSize.drawText(rect, Qt::AlignLeft | Qt::TextWordWrap, str, &realRect);
             if (realRect.height() > maxHeight && columnStretch[i] != 0) {
@@ -161,8 +167,7 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
                 str = headers.at(i);
             }
             QRect rec(leftMargin, topMargin, columnWidth[i] - rightMargin - leftMargin, maxHeight);
-            QRect realRect;
-            painter->drawText(rec, Qt::AlignLeft | Qt::TextWordWrap, str, &realRect);
+            painter->drawText(rec, Qt::AlignLeft | Qt::TextWordWrap, str);
             painter->translate(columnWidth[i], 0);
         }
         painter->restore();
