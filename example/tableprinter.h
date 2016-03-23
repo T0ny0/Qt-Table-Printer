@@ -33,6 +33,7 @@ public:
   void setContentFont(QFont font);
   void setHeaderColor(QColor color);
   void setContentColor(QColor color);
+  void setMaxRowHeight(int height);
 private:
   QPainter *painter;
   QPrinter *printer;
@@ -54,7 +55,7 @@ private:
   int leftBlank;
   int rightBlank;
 
-  int MaxRowHeight;
+  int maxRowHeight;
 
   QString error;
 };
