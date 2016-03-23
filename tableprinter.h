@@ -60,7 +60,7 @@ public:
   void setCellMargin(int left = 10, int right = 5, int top = 5, int bottom = 5);
   void setPageMargin(int left = 50, int right = 20, int top = 20, int bottom = 20);
   void setPagePrepare(PagePrepare *prepare);
-  void setPen(QPen pen);
+  void setPen(QPen pen); // for table borders
   void setHeadersFont(QFont font);
   void setContentFont(QFont font);
   void setHeaderColor(QColor color);
