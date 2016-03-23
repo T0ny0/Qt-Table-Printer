@@ -1,6 +1,6 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include "tableprinter.h"
+#include "../tableprinter.h"
 
 #include <QPrinter>
 #include <QPrintPreviewDialog>
