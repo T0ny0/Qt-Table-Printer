@@ -31,6 +31,8 @@ Where model is a child of QAbstractItemModel you want to print.
 TablePrinter starts to print table from point (tablePrinter.leftblank, current_Y_position) so if you have some content above the table you need to set initial vertical position with
 
     painter.translate(0, dy);
+After `printTable()` call `painter.transform.dx()` equals to `painter.transform.dx()` before printing, and `painter.transform.dy()`
+equals to `y` coordinate of last horizontal line of printed table.
 If wrong data was passed to TablePrinter then table will not be printed and printTable returns false. You can get an error description from TablePrinter::lastError() method.
 
     if(!tablePrinter.printTable(model, columnStretch)) {

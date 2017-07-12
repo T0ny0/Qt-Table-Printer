@@ -66,6 +66,29 @@ void Widget::print(QPrinter *printer) {
     painter.end();
 }
 
+void Widget::print_two_tables(QPrinter *printer) {
+
+    // ------------------ two tables example --------------------------
+
+    QPainter painter;
+    if(!painter.begin(printer)) {
+        qWarning() << "can't start printer";
+        return;
+    }
+    // print table
+    TablePrinter tablePrinter(&painter, printer);
+    QVector<int> columnStretch = QVector<int>() << 2 << 5 << 10 << 15;
+    if(!tablePrinter.printTable(ui->tableView->model(), columnStretch)) {
+        qDebug() << tablePrinter.lastError();
+    }
+    // print second table
+    painter.translate(0, 100);
+    if(!tablePrinter.printTable(ui->tableView->model(), columnStretch)) {
+        qDebug() << tablePrinter.lastError();
+    }
+    painter.end();
+}
+
 void Widget::uglyPrint(QPrinter *printer) {
 
     // ---------------- death-to-designers example ------------------
@@ -138,7 +161,13 @@ void Widget::on_pushButton_2_clicked() {
 }
 
 void Widget::on_pushButton_clicked() {
-  QPrintPreviewDialog dialog;
-  connect(&dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(print(QPrinter*)));
-  dialog.exec();
+    QPrintPreviewDialog dialog;
+    connect(&dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(print(QPrinter*)));
+    dialog.exec();
+}
+
+void Widget::on_pushButton_3_clicked() {
+    QPrintPreviewDialog dialog;
+    connect(&dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(print_two_tables(QPrinter*)));
+    dialog.exec();
 }

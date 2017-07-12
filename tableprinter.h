@@ -55,7 +55,8 @@ class TablePrinter
 {
 public:
   TablePrinter(QPainter *painter, QPrinter *printer);
-  bool printTable(const QAbstractItemModel* model, const QVector<int> columnStretch, const QVector<QString> headers = QVector<QString>());
+  bool printTable(const QAbstractItemModel* model, const QVector<int> columnStretch,
+                  const QVector<QString> headers = QVector<QString>());
   QString lastError();
   void setCellMargin(int left = 10, int right = 5, int top = 5, int bottom = 5);
   void setPageMargin(int left = 50, int right = 20, int top = 20, int bottom = 20);

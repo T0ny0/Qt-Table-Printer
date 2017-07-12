@@ -23,9 +23,11 @@ private:
   QSqlTableModel *model;
 private slots:
   void print(QPrinter *printer);
+  void print_two_tables(QPrinter *printer);
   void uglyPrint(QPrinter *printer);
   void on_pushButton_2_clicked();
   void on_pushButton_clicked();
+  void on_pushButton_3_clicked();
 };
 
 #endif // WIDGET_H

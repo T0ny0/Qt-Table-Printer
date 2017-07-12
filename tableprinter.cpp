@@ -132,6 +132,9 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
     painter->setFont(headersFont);
     testSize.setFont(headersFont);
     painter->drawLine(0, 0, tableWidth, 0); // first horizontal line
+
+    float max_y;
+
     for(int j = initValue; j < model->rowCount(); j++) { // for each row
         if(j == 0) {
             painter->setFont(contentFont);
@@ -201,6 +204,7 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
         painter->drawLine(0, maxHeight + topMargin + bottomMargin, tableWidth,
                           maxHeight + topMargin + bottomMargin); // last horizontal line
         painter->translate(0, maxHeight + topMargin + bottomMargin);
+        max_y = painter->transform().dy();
     }
     int y = painter->transform().dy();
     painter->restore();
@@ -217,6 +221,8 @@ bool TablePrinter::printTable(const QAbstractItemModel* model, const QVector<int
     delete image;
 
     painter->restore(); // before table print
+
+    painter->translate(0, max_y);
 
     return true;
 }
